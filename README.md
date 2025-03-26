@@ -9,6 +9,7 @@ In addition to this main branch, there are several other branches in this reposi
 ### 1. Js-Array-Functions
 The `Js-Array-Functions` branch focuses on JavaScript array methods. 
 It includes examples to help you understand and utilize array functions and other JS functions effectively.
+
 **To clone this branch, use:**
 git clone -b Js-Array-Functions --single-branch https://github.com/Saurabh-Powar/LinkCode-Sessions.git
 
