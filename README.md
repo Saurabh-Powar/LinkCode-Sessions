@@ -15,11 +15,11 @@ git clone -b Js-Array-Functions --single-branch https://github.com/Saurabh-Powar
 ### 2. To-Do-Backend
 The `To-Do-Backend` branch contains a backend implementation for a To-Do application. 
 This branch demonstrates:
--`the basic structure of To-Do application`
--`application with Gen AI integration`
--`how to set up a server`
--`manage data`
--`handle API requests using Node.js and Express`
+- `the basic structure of To-Do application`
+- `application with Gen AI integration`
+- `how to set up a server`
+- `manage data`
+- `handle API requests using Node.js and Express`
 
 
 **To clone this branch, use:**
