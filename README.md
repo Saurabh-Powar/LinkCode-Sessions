@@ -7,8 +7,6 @@ Welcome to the **JavaScript Array Functions** branch! This repository is dedicat
 - [Introduction](#introduction)
 - [Array Functions Included](#array-functions-included)
 - [How to Use This Repository](#how-to-use-this-repository)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Introduction
 
