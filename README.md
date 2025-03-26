@@ -40,7 +40,7 @@ Each function is accompanied by:
 ## How to Use This Repository
 
 1. **Clone the Repository**: Start by cloning this repository to your local machine using the following command:
-git clone https://github.com/yourusername/javascript-array-functions.git
+git clone -b Js-Array-Functions --single-branch https://github.com/Saurabh-Powar/LinkCode-Sessions.git
 
 2. **Navigate to the Branch**: Switch to the relevant branch that contains the array functions.
 git checkout Js-Array-Functions
