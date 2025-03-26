@@ -1,6 +1,6 @@
 # Welcome to the LinkCode Sessions Repository
 
-This repository is a result of my learning journey with **LinkCode Technologies**, under the guidance of **Mr. Pritam Kamble** (https://github.com/pritam-techonsy) and **Mr. Rahul Ahire**. Their mentorship has been instrumental in helping me understand and implement various programming concepts effectively.
+This repository is a result of my learning journey with **LinkCode Technologies**, under the guidance of **Mr. Pritam Kamble sir** (https://github.com/pritam-techonsy) and **Mr. Rahul Ahire sir**. Their mentorship has been instrumental in helping me understand and implement various programming concepts effectively.
 
 This repository contains various coding sessions and projects designed to enhance your programming skills. Currently, you are on the **main branch**. Here, you will find foundational information and resources related to the overall project. As I continue to learn and grow with **LinkCode Technologies**, I will create new projects and post them in the **main branch**. Stay tuned for exciting updates!.
 
