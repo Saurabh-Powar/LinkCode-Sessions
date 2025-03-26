@@ -30,6 +30,9 @@ In this branch, you will find detailed information and examples for the followin
 - `splice()`
 - `slice()`
 
+## Basic JS Functions Included
+- `Callback Funtion`
+
 
 Each function is accompanied by:
 
