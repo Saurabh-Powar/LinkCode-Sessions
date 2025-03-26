@@ -6,7 +6,7 @@ This repository contains various coding sessions and projects designed to enhanc
 
 In addition to this main branch, there are several other branches in this repository that you can explore:
 
-### 1. Js-Array-Functions
+### 1. Js-Array-Functions (https://github.com/Saurabh-Powar/LinkCode-Sessions/tree/Js-Array-Functions)
 The `Js-Array-Functions` branch focuses on JavaScript array methods. 
 It includes examples to help you understand and utilize array functions and other JS functions effectively.
 
@@ -15,7 +15,7 @@ It includes examples to help you understand and utilize array functions and othe
 git clone -b Js-Array-Functions --single-branch https://github.com/Saurabh-Powar/LinkCode-Sessions.git
 
 
-### 2. To-Do-Backend
+### 2. To-Do-Backend (https://github.com/Saurabh-Powar/LinkCode-Sessions/tree/To-Do-Backend)
 The `To-Do-Backend` branch contains a backend implementation for a To-Do application.
 This branch demonstrates:
 - `the basic structure of To-Do application`
