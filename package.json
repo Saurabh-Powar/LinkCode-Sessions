@@ -1,0 +1,25 @@
+{
+  "name": "todo-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+
+  "scripts": {
+    "DBapp": "node DBconn-app.js",
+    "app": "nodemon app.js",
+    "Sql": "nodemon Sql.js",
+    "app2": "nodemon app2.js",
+    "app1": "nodemon app1.js",
+    "DBconn-app": "nodemon DBconn-app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "groq-sdk": "^0.17.0",
+    "node": "^18.20.8",
+    "postgres": "^3.4.5"
+  }
+}

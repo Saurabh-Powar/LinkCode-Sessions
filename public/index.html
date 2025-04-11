@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TODO Backend</title>
+    </head>
+    <body>
+        <h1>Hello World</h1>
+        <input type="text" id="Tasks" placeholder="Enter a task" /><br/>
+        <input type="text" id="Users" placeholder="Enter a User" /><br/>
+        <button type="submit" onclick="Submit">Submit</button><br/>
+        <button onclick="getTask()" >Get Task</button><br/>
+        <button onclick="getUsers()" >Get Users</button><br/>
+        <script>
+            const getTask = async (params) => {
+                const response = await fetch('http://localhost:3000/tasks', {method: 'GET'});
+                const body = await response.json();
+            console.log(body);
+            }
+            const getUsers = async (params) => {
+                const response = await fetch('http://localhost:3000/users', {method: 'GET'});
+                const body = await response.json();
+            console.log(body);
+            }
+        </script>
+    </body>
+</html>
