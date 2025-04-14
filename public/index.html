@@ -3,26 +3,116 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TODO Backend</title>
+        <title>TODO Frontend Link</title>
     </head>
     <body>
         <h1>Hello World</h1>
-        <input type="text" id="Tasks" placeholder="Enter a task" /><br/>
-        <input type="text" id="Users" placeholder="Enter a User" /><br/>
-        <button type="submit" onclick="Submit">Submit</button><br/>
-        <button onclick="getTask()" >Get Task</button><br/>
-        <button onclick="getUsers()" >Get Users</button><br/>
+        <input type="text" id="task" placeholder="Enter a task" /><br/>
+        <button onclick="AddTask()">Submit</button><br/>
+        <button onclick="getTasks()">Get Task</button><br/>
+        <ul id="Task"></ul>
+        <div id="message" style="color: red; margin-top: 10px;"></div>
+        
         <script>
-            const getTask = async (params) => {
-                const response = await fetch('http://localhost:3000/tasks', {method: 'GET'});
-                const body = await response.json();
-            console.log(body);
-            }
-            const getUsers = async (params) => {
-                const response = await fetch('http://localhost:3000/users', {method: 'GET'});
-                const body = await response.json();
-            console.log(body);
-            }
+            const ElemTask = document.getElementById('Task');
+            const input = document.getElementById("task");
+            const messageDiv = document.getElementById("message");
+
+            const getTasks = async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/tasks', { method: 'GET' });
+                    const body = await response.json();
+                    ElemTask.innerHTML = '';
+                    body.Tasks.forEach((task) => {
+                        const Li = document.createElement("li");
+                        Li.innerHTML = `
+                            <span>ID: ${task.id} - ${task.task}</span>
+                            <button onclick="deleteTask(${task.id})">Del</button>
+                            <button onclick="updateTask(${task.id})">Edit</button>
+                        `;
+                        Li.style.marginBottom = '10px';
+                        ElemTask.appendChild(Li);
+                    });
+                } catch (error) {
+                    console.error('Error fetching tasks:', error);
+                    messageDiv.textContent = 'Failed to fetch tasks.';
+                }
+            };
+
+            input.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    AddTask();
+                }
+            });
+
+            const AddTask = async () => {
+                if (input.value.trim() === "") {
+                    messageDiv.textContent = "Please enter a task.";
+                    return;
+                }
+                try {
+                    const response = await fetch("http://localhost:3000/tasks", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ newTask: input.value.trim() })
+                    });
+                    if (response.ok) {
+                        messageDiv.style.color = "green";
+                        messageDiv.textContent = "Task submitted successfully!";
+                        input.value = "";
+                        getTasks();
+                    } else {
+                        messageDiv.style.color = "red";
+                        messageDiv.textContent = "Failed to submit task. Please try again.";
+                    }
+                } catch (error) {
+                    console.error('Error adding task:', error);
+                    messageDiv.textContent = 'An error occurred while adding the task.';
+                }
+            };
+
+            const deleteTask = async (taskId) => {
+                try {
+                    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        messageDiv.style.color = 'green';
+                        messageDiv.textContent = `Task with ID ${taskId} deleted successfully.`;
+                        getTasks();
+                    } else {
+                        messageDiv.style.color = 'red';
+                        messageDiv.textContent = `Failed to delete task with ID ${taskId}.`;
+                    }
+                } catch (error) {
+                    console.error('Error deleting task:', error);
+                    messageDiv.textContent = 'An error occurred while deleting the task.';
+                }
+            };
+
+            const updateTask = async (taskId) => {
+                const updatedTask = prompt('Enter the updated task:');
+                if (!updatedTask) {
+                    messageDiv.textContent = 'Task update canceled.';
+                    return;
+                }
+                try {
+                    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ newTask: updatedTask.trim() })
+                    });
+                    if (response.ok) {
+                        messageDiv.style.color = 'green';
+                        messageDiv.textContent = `Task with ID ${taskId} updated successfully.`;
+                        getTasks();
+                    } else {
+                        messageDiv.style.color = 'red';
+                        messageDiv.textContent = `Failed to update task with ID ${taskId}.`;
+                    }
+                } catch (error) {
+                    console.error('Error updating task:', error);
+                    messageDiv.textContent = 'An error occurred while updating the task.';
+                }
+            };
         </script>
     </body>
 </html>
