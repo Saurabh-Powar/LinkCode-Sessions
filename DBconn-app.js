@@ -23,8 +23,8 @@ app.post('/tasks', async (req, res, next) => {
             throw error;
         }
 
-        await Sql`INSERT INTO Tasks (TASK) VALUES (${req.body.newTask})`;
-        const tasks = await Sql`SELECT * FROM Tasks`;
+        await Sql`INSERT INTO tasks (TASK) VALUES (${req.body.newTask})`;
+        const tasks = await Sql`SELECT * FROM tasks`;
         res.status(200).json({
             message: 'Task added successfully',
             tasks: tasks
@@ -41,7 +41,7 @@ app.post('/tasks', async (req, res, next) => {
 app.get('/tasks', async (req, res) => {
     try {
         const tasks = await Sql`SELECT * FROM Tasks ORDER BY ID ASC`;
-        res.status(200).json({tasks: tasks});
+        res.status(200).json({Tasks: tasks});
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch tasks' });
     }
@@ -72,77 +72,69 @@ app.delete('/tasks', async (req, res, next) => {
     }
 });
 
-app.delete("/tasks/:id", async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ error: "Task ID is required" });
-    }
-    try {
-      const result = await Sql`DELETE FROM tasks WHERE id = ${id}`;
-      await Sql `WITH reordered AS (
-        SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS new_id
-        FROM tasks)
-        UPDATE tasks
-        SET id = reordered.new_id
-        FROM reordered
-        WHERE tasks.id = reordered.id`;
-      await `SELECT setval('tasks_id_seq', 1, false)`;
-      if (result.count === 0) {
-        return res.status(404).json({ error: "Task not found" });
-      }
-      res.json({ message: "Task deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting task:", error),
-      res.status(500).json({ error: "Internal server error" })
-    }
-})
-
-app.delete("/tasks/:tName", async (req, res) => {
-    const { tName } = req.params;
-    if (!tName) {
-      return res.status(400).json({ error: "Task ID is required" });
-    }
-    try {
-      const result = await Sql`DELETE FROM Tasks WHERE TASK = ${tName}`;
-      if (result.count === 0) {
-        return res.status(404).json({ error: "Task not found" });
-    }
-      res.json({ message: "Task deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting task:", error),
-      res.status(500).json({ error: "Internal server error" })
-    }
-  })
-
-  app.delete('/taskBase', async (req, res, next) => {
-    try {
-        if (!req.body) {
-            res.status(400).json({
-                message: 'Please check if Task table exists to clear all tasks'
-            });
-            return;
+    app.delete("/tasks/:idOrtName", async (req, res) => {
+        const { idOrtName } = req.params;
+        if (!idOrtName) {
+            return res.status(400).json({ error: "Either Task ID or Task name is required" });
         }
-        // DELETE FROM Users WHERE name = 'Saurabh' AND age = 21
-        await Sql`TRUNCATE TABLE Tasks RESTART IDENTITY;`;
-        res.status(200).json({
-            message: 'All tasks deleted successfully',
-            //putting redirect to post new tasks
-            redirect: '/tasks'
-        });
-        throw error;
-    } catch (error) {
-        res.status(500).json({
-            message: 'Something went wrong',
-        });
-        next(error);
-    }
-});
+        try {
+            let result;
+            if (!isNaN(idOrtName)) {
+                result = await Sql`DELETE FROM tasks WHERE id = ${idOrtName}`;
+            } else {
+                result = await Sql`DELETE FROM tasks WHERE TASK = ${idOrtName}`;
+            }
+
+            if (result.count === 0) {
+                return res.status(404).json({ error: "Task not found" });
+            }
+
+            // Reorder IDs after deletion
+            await Sql`
+                WITH reordered AS (
+                    SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS new_id
+                    FROM tasks
+                )
+                UPDATE tasks
+                SET id = reordered.new_id
+                FROM reordered
+                WHERE tasks.id = reordered.id
+            `;
+            await Sql`SELECT setval('tasks_id_seq', COALESCE(MAX(id), 0) + 1, false) FROM tasks`;
+
+            res.json({ message: "Task deleted successfully" });
+        } catch (error) {
+            console.error("Error in deleting task:", error);
+            res.status(500).json({ error: "Internal server error" });
+        }
+    });
+
+    app.delete('/taskBase', async (req, res, next) => {
+        try {
+            if (!req.body) {
+                res.status(400).json({
+                    message: 'Please check if Task table exists to clear all tasks'
+                });
+                return;
+            }
+            // DELETE FROM Users WHERE name = 'Saurabh' AND age = 21
+            await Sql`TRUNCATE TABLE Tasks RESTART IDENTITY;`;
+            res.status(200).json({
+                message: 'All tasks deleted successfully',
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Something went wrong',
+                error: error.message
+            });
+        }
+    });
 
 // Update a task
 app.put('/tasks/:id', async (req, res, next) => {
     try {
-        const taskId = req.params.id; // Get the task ID from the URL
-        const updatedTask = req.body.newTask; // Get the updated task from the request body
+        const taskId = req.params.id;
+        const updatedTask = req.body.newTask;
 
         // Validate input
         if (!updatedTask) {
@@ -257,6 +249,8 @@ app.delete('/userTable', async (req, res, next) => {
         next(error);
     }
 });
+
+module.exports = app;
 
 app.listen(PORT, () => {
     console.log(`Express server started on http://localhost:${PORT}`);

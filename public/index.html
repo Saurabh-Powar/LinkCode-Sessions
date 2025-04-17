@@ -6,49 +6,61 @@
         <title>TODO Frontend Link</title>
     </head>
     <body>
+        <link rel="stylesheet" href="index.css">
         <h1>Hello World</h1>
         <input type="text" id="task" placeholder="Enter a task" /><br/>
-        <button onclick="AddTask()">Submit</button><br/>
-        <button onclick="getTasks()">Get Tasks</button><br/>
-        <button onclick="ClearTasks()">Clear TaskBase</button><br/>
-        <ul id="Task"></ul>
+        <button class="AddTask" onclick="AddTask()">Submit</button><br/>
+        <button class="getTasks" onclick="getTasks()">Get Task</button><br/>
+        <button class="ClearTasks" onclick="ClearTasks()">Clear TaskBase</button><br/>
+        <ul id="Task" ></ul>
         <div id="message" style="color: red; margin-top: 10px;"></div>
         
         <script>
             const ElemTask = document.getElementById('Task');
             const input = document.getElementById("task");
             const messageDiv = document.getElementById("message");
-
-            const getTasks = async () => {
+            const showMessage = (message, color = 'red') => {
+                messageDiv.style.color = color;
+                messageDiv.textContent = message;
+                messageDiv.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    messageDiv.classList.add('hidden');
+                }, 5000);
+                };
+            const getTasks = async (params) => {
                 try {
                     const response = await fetch('http://localhost:3000/tasks', { method: 'GET' });
                     const body = await response.json();
                     ElemTask.innerHTML = '';
-                    body.tasks.forEach((task) => {
+                    if (body.Tasks.length === 0) {
+                        ElemTask.innerHTML = '<p style="color: red;">No tasks found. Please add a task.</p>';
+                        return;
+                    }
+                    body.Tasks.forEach((task) => {
                         const Li = document.createElement("li");
-                        Li.innerHTML = ''+`
-                            <span>ID: ${task.id} - Task: ${task.task}</span>
-                            <button onclick="deleteTask(${task.id})">Del</button>
-                            <button onclick="updateTask(${task.id})">Edit</button>
-                        `;
+                        Li.innerHTML =`<span>TaskNo. ${task.id} = ${task.task}</span>
+                            <button class="deleteTask" onclick="deleteTask(${task.id}, '${task.task}')">Del</button>
+                            <button class="updateTask" onclick="updateTask(${task.id})">Edit</button>`;
                         Li.style.marginBottom = '10px';
                         ElemTask.appendChild(Li);
                     });
                 } catch (error) {
                     console.error('Error fetching tasks:', error);
-                    messageDiv.textContent = 'Failed to fetch tasks.';
+                    showMessage('Failed to fetch tasks: ', "red" + error.message);
                 }
             };
+            getTasks();
 
             input.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
-                    AddTask()||updateTask();
+                    AddTask();
                 }
             });
 
             const AddTask = async () => {
                 if (!input.value) {
-                    messageDiv.textContent = "Please enter a task.";
+                    showMessage('Please enter a task.', 'red');
                     return;
                 }
                 try {
@@ -58,66 +70,52 @@
                         body: JSON.stringify({ newTask: input.value})
                     });
                     if (response.ok) {
-                        messageDiv.style.color = "green";
-                        messageDiv.textContent = "Task submitted successfully!";
+                        showMessage("Task submitted successfully!", "green");
                         input.value = "";
                         getTasks();
                     } else {
-                        messageDiv.style.color = "red";
-                        messageDiv.textContent = "Failed to submit task. Please try again.";
+                        showMessage("Failed to submit task. Please try again.", "red");
                     }
                 } catch (error) {
                     console.error('Error adding task:', error);
-                    messageDiv.textContent = 'An error occurred while adding the task.';
+                    showMessage('An error occurred while adding the task.');
                 }
             };
 
-            const deleteTask = async (tName) => {
+            const deleteTask = async (id, Task) => {
                 try {
-                    const response = await fetch(`http://localhost:3000/tasks/${tName}`, { method: 'DELETE' });
+                    const response = await fetch(`http://localhost:3000/tasks/${id}`, { method: 'DELETE' });
                     if (response.ok) {
-                        messageDiv.style.color = 'green';
-                        messageDiv.textContent = `Task "${tName}" deleted successfully.`;
+                        showMessage(`Task "${Task}" deleted successfully.`, 'green');
                         getTasks();
                     } else {
-                        messageDiv.style.color = 'red';
-                        messageDiv.textContent = `Failed to delete task  ${tName}.`;
+                        showMessage(`Failed to delete task  ${Task}.`,'red');
                     }
                 } catch (error) {
                     console.error('Error deleting task:', error);
-                    messageDiv.textContent = 'An error occurred while deleting the task.';
+                    showMessage('An error occurred while deleting the task.', 'red');
                 }
             };
             
             const ClearTasks = async () => {
-                const confirmClear = confirm('Are you sure you want to clear all tasks?');
-                if (!confirmClear) {
-                    messageDiv.textContent = 'Task clearing canceled.';
-                    return;
-                }
-
                 try {
                     const response = await fetch('http://localhost:3000/taskBase', { method: 'DELETE' });
                     if (response.ok) {
-                        messageDiv.style.color = 'green';
-                        messageDiv.textContent = 'All tasks cleared successfully.';
-                        setTimeout(() => {
-                            location.reload(); // Refresh the page
-                        }, 1000); // Delay for user to see the message
+                        showMessage('All tasks cleared successfully, there are no tasks in the taskBase.', 'green');
+                        getTasks();
                     } else {
-                        messageDiv.style.color = 'red';
-                        messageDiv.textContent = 'Failed to clear tasks.';
+                        showMessage('Failed to clear tasks.', 'red');
                     }
                 } catch (error) {
                     console.error('Error clearing tasks:', error);
-                    messageDiv.textContent = 'An error occurred while clearing tasks.';
+                    showMessage('An error occurred while clearing tasks.', 'red');
                 }
             };
 
             const updateTask = async (taskId) => {
                 const updatedTask = prompt('Enter the updated task: ');
                 if (!updatedTask) {
-                    messageDiv.textContent = 'Task update canceled.';
+                    showMessage('Task update canceled.', 'red');
                     return;
                 }
                 try {
@@ -127,16 +125,14 @@
                         body: JSON.stringify({ newTask: updatedTask })
                     });
                     if (response.ok) {
-                        messageDiv.style.color = 'green';
-                        messageDiv.textContent = `Task with ID ${taskId} updated successfully.`;
+                        showMessage(`Task with ID ${taskId} updated successfully.`,"green");
                         getTasks();
                     } else {
-                        messageDiv.style.color = 'red';
-                        messageDiv.textContent = `Failed to update task with ID ${taskId}.`;
+                        showMessage(`Failed to update task with ID ${taskId}.`,'red');
                     }
                 } catch (error) {
                     console.error('Error updating task:', error);
-                    messageDiv.textContent = 'An error occurred while updating the task.';
+                    showMessage('An error occurred while updating the task.',"red");
                 }
             };
         </script>

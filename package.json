@@ -6,7 +6,7 @@
   "scripts": {
     "DBapp": "node DBconn-app.js",
     "app": "nodemon app.js",
-    "Sql": "nodemon Sql.js",
+    "Sql": "node Sql.js",
     "app2": "nodemon app2.js",
     "app1": "nodemon app1.js",
     "DBconn-app": "nodemon DBconn-app.js"
