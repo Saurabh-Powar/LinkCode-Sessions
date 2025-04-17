@@ -27,7 +27,7 @@ app.post('/tasks', async (req, res, next) => {
         const tasks = await Sql`SELECT * FROM Tasks`;
         res.status(200).json({
             message: 'Task added successfully',
-            Tasks: tasks
+            tasks: tasks
         });
     } catch (error) {
         res.status(500).json({
@@ -41,7 +41,7 @@ app.post('/tasks', async (req, res, next) => {
 app.get('/tasks', async (req, res) => {
     try {
         const tasks = await Sql`SELECT * FROM Tasks ORDER BY ID ASC`;
-        res.status(200).json({Tasks: tasks});
+        res.status(200).json({tasks: tasks});
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch tasks' });
     }
@@ -51,12 +51,11 @@ app.delete('/tasks', async (req, res, next) => {
     try {
         if (!req.body.tname) {
             res.status(400).json({
-            message: `Please provide taskname in {"tname": "Taskname"} to delete`
+                message: `Please provide taskname in {"tname": "Taskname"} to delete`
             });
             return;
         }
-        const tasks = await Sql`SELECT * FROM Tasks`;
-        // DELETE FROM Users WHERE name = 'Saurabh'
+        const tasks = await Sql`SELECT * FROM Tasks ORDER BY ID DESC`;
         await Sql`DELETE FROM Tasks WHERE TASK = ${req.body.tname}`;
         // Reset the auto-increment counter for the ID column
         await Sql`SELECT setval('Tasks_ID_seq', COALESCE(MAX("id"), 0) + 1, false) FROM Tasks`;
@@ -73,50 +72,53 @@ app.delete('/tasks', async (req, res, next) => {
     }
 });
 
-app.delete('/tasks/:index', async (req, res, next) => {
-    try {
-        // Parse the index parameter from the request
-        const index = parseInt(req.params.index, 10);
-
-        // Fetch all tasks from the database
-        const tasks = await Sql`SELECT * FROM Tasks ORDER BY ID ASC`;
-
-        // Check if the index is valid
-        if (index < 0 || index >= tasks.length) {
-            res.status(400).json({
-                message: 'Invalid index',
-            });
-            return;
-        }
-
-        // Get the task to delete
-        const taskToDelete = tasks[index];
-
-        // Delete the task from the database
-        await Sql`DELETE FROM Tasks WHERE ID = ${taskToDelete.id}`;
-
-        // Fetch the updated list of tasks
-        const updatedTasks = await Sql`SELECT * FROM Tasks ORDER BY ID ASC`;
-
-        res.status(200).json({
-            message: `Task with ID ${taskToDelete.id} deleted successfully`,
-            tasks: updatedTasks,
-        });
-    } catch (error) {
-        console.error('Error deleting task by index:', error);
-        res.status(500).json({
-            message: 'Something went wrong',
-            error: error.message,
-        });
-        next(error);
+app.delete("/tasks/:id", async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: "Task ID is required" });
     }
-});
+    try {
+      const result = await Sql`DELETE FROM tasks WHERE id = ${id}`;
+      await Sql `WITH reordered AS (
+        SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS new_id
+        FROM tasks)
+        UPDATE tasks
+        SET id = reordered.new_id
+        FROM reordered
+        WHERE tasks.id = reordered.id`;
+      await `SELECT setval('tasks_id_seq', 1, false)`;
+      if (result.count === 0) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+      res.json({ message: "Task deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting task:", error),
+      res.status(500).json({ error: "Internal server error" })
+    }
+})
 
-app.delete('/taskBase', async (req, res, next) => {
+app.delete("/tasks/:tName", async (req, res) => {
+    const { tName } = req.params;
+    if (!tName) {
+      return res.status(400).json({ error: "Task ID is required" });
+    }
+    try {
+      const result = await Sql`DELETE FROM Tasks WHERE TASK = ${tName}`;
+      if (result.count === 0) {
+        return res.status(404).json({ error: "Task not found" });
+    }
+      res.json({ message: "Task deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting task:", error),
+      res.status(500).json({ error: "Internal server error" })
+    }
+  })
+
+  app.delete('/taskBase', async (req, res, next) => {
     try {
         if (!req.body) {
             res.status(400).json({
-            message: 'Please check if Task table exists to clear all tasks'
+                message: 'Please check if Task table exists to clear all tasks'
             });
             return;
         }
@@ -151,7 +153,7 @@ app.put('/tasks/:id', async (req, res, next) => {
         }
 
         // Update the task in the database
-        const result = await Sql`UPDATE Tasks SET TASK = ${updatedTask} WHERE ID = ${taskId}`;
+        const result = await Sql`UPDATE Tasks SET TASK = ${updatedTask} WHERE id = ${taskId}`;
 
         // Check if the task was updated
         if (result.count === 0) {
