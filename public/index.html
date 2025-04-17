@@ -30,7 +30,7 @@
                 };
             const getTasks = async (params) => {
                 try {
-                    const response = await fetch('http://localhost:3000/tasks', { method: 'GET' });
+                    const response = await fetch('https://taskmaster-nfgz.onrender.com/tasks', { method: 'GET' });
                     const body = await response.json();
                     ElemTask.innerHTML = '';
                     if (body.Tasks.length === 0) {
@@ -64,7 +64,7 @@
                     return;
                 }
                 try {
-                    const response = await fetch("http://localhost:3000/tasks", {
+                    const response = await fetch("https://taskmaster-nfgz.onrender.com/tasks", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ newTask: input.value})
@@ -84,7 +84,7 @@
 
             const deleteTask = async (id, Task) => {
                 try {
-                    const response = await fetch(`http://localhost:3000/tasks/${id}`, { method: 'DELETE' });
+                    const response = await fetch(`https://taskmaster-nfgz.onrender.com/tasks/${id}`, { method: 'DELETE' });
                     if (response.ok) {
                         showMessage(`Task "${Task}" deleted successfully.`, 'green');
                         getTasks();
@@ -99,7 +99,7 @@
             
             const ClearTasks = async () => {
                 try {
-                    const response = await fetch('http://localhost:3000/taskBase', { method: 'DELETE' });
+                    const response = await fetch('https://taskmaster-nfgz.onrender.com/taskBase', { method: 'DELETE' });
                     if (response.ok) {
                         showMessage('All tasks cleared successfully, there are no tasks in the taskBase.', 'green');
                         getTasks();
@@ -119,7 +119,7 @@
                     return;
                 }
                 try {
-                    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+                    const response = await fetch(`https://taskmaster-nfgz.onrender.com/tasks/${taskId}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ newTask: updatedTask })
