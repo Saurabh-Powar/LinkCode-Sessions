@@ -14,7 +14,7 @@ Sql`CREATE TABLE IF NOT EXISTS TUsers(
     console.error('Error creating table:', err);
 });
 
-Sql`CREATE TABLE IF NOT EXISTS MasterTasks(
+Sql`CREATE TABLE IF NOT EXISTS mastertasks(
     ID SERIAL PRIMARY KEY, 
     TASK TEXT NOT NULL)`.then(res => {
     console.log('Tasks Table created');
