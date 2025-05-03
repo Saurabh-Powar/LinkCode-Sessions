@@ -23,8 +23,8 @@ app.post('/tasks', async (req, res, next) => {
             throw error;
         }
 
-        await Sql`INSERT INTO tasks (TASK) VALUES (${req.body.newTask})`;
-        const tasks = await Sql`SELECT * FROM tasks`;
+        await Sql`INSERT INTO mastertasks (TASK) VALUES (${req.body.newTask})`;
+        const tasks = await Sql`SELECT * FROM mastertasks`;
         res.status(200).json({
             message: 'Task added successfully',
             tasks: tasks
@@ -157,7 +157,7 @@ app.put('/tasks/:id', async (req, res, next) => {
 
         res.status(200).json({
             message: `Task with ID ${taskId} updated successfully`,
-            redirect: '/tasks'
+            redirect: '/mastertasks'
         });
     } catch (error) {
         console.error('Error updating task:', error);
