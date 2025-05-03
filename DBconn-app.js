@@ -117,7 +117,7 @@ app.delete('/tasks', async (req, res, next) => {
                 });
                 return;
             }
-            // DELETE FROM Users WHERE name = 'Saurabh' AND age = 21
+            // DELETE FROM Tusers WHERE name = 'Saurabh' AND age = 21
             await Sql`TRUNCATE TABLE mastertasks RESTART IDENTITY;`;
             res.status(200).json({
                 message: 'All tasks deleted successfully',
@@ -169,16 +169,16 @@ app.put('/tasks/:id', async (req, res, next) => {
     }
 });
 
-app.post('/users', async (req, res, next) => {
+app.post('/Tusers', async (req, res, next) => {
     try {
         if (!req.body.name || !req.body.age) {
             res.status(400).json({
-            message: 'Please provide name and age in Users'
+            message: 'Please provide name and age in Tusers'
             });
             return;
         }
 
-        await Sql`INSERT INTO Users (NAME, AGE) VALUES (${req.body.name}, ${req.body.age})`;
+        await Sql`INSERT INTO Tusers (NAME, AGE) VALUES (${req.body.name}, ${req.body.age})`;
         res.status(200).json({
             message: 'User added successfully'
         });
@@ -194,7 +194,7 @@ app.post('/users', async (req, res, next) => {
 // get all users
 app.get('/users', async (req, res) => {
     try {
-        const users = await Sql`SELECT * FROM Users`;
+        const users = await Sql`SELECT * FROM Tusers`;
         res.setHeaders
         res.status(200).json({Users: users});
     } catch (error) {
@@ -211,9 +211,9 @@ app.delete('/users', async (req, res, next) => {
             return;
         }
         // DELETE FROM Users WHERE name = 'Saurabh'
-        await Sql`DELETE FROM Users WHERE name = ${req.body.name}`;
+        await Sql`DELETE FROM Tusers WHERE name = ${req.body.name}`;
         // Reset the auto-increment counter for the ID column
-        await Sql`SELECT setval('Users_ID_seq', COALESCE(MAX("id"), 0) + 1, false) FROM Users`;
+        await Sql`SELECT setval('Users_ID_seq', COALESCE(MAX("id"), 0) + 1, false) FROM Tusers`;
         res.status(200).json({
             message: 'User deleted successfully'
         });
@@ -235,8 +235,8 @@ app.delete('/userTable', async (req, res, next) => {
             });
             return;
         }
-        // DELETE FROM Users WHERE name = 'Saurabh' AND age = 21
-        await Sql`TRUNCATE TABLE IF EXISTS Users RESTART IDENTITY;`;
+        // DELETE FROM Tusers WHERE name = 'Saurabh' AND age = 21
+        await Sql`TRUNCATE TABLE IF EXISTS Tusers RESTART IDENTITY;`;
         res.status(200).json({
             message: 'Userbase is destroyed successfully'
         });
