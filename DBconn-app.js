@@ -40,7 +40,7 @@ app.post('/tasks', async (req, res, next) => {
 //get all tasks
 app.get('/tasks', async (req, res) => {
     try {
-        const tasks = await Sql`SELECT * FROM Tasks ORDER BY ID ASC`;
+        const tasks = await Sql`SELECT * FROM mastertasks ORDER BY ID ASC`;
         res.status(200).json({Tasks: tasks});
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch tasks' });
@@ -55,10 +55,10 @@ app.delete('/tasks', async (req, res, next) => {
             });
             return;
         }
-        const tasks = await Sql`SELECT * FROM Tasks ORDER BY ID DESC`;
-        await Sql`DELETE FROM Tasks WHERE TASK = ${req.body.tname}`;
+        const tasks = await Sql`SELECT * FROM mastertasks ORDER BY ID DESC`;
+        await Sql`DELETE FROM mastertasks WHERE TASK = ${req.body.tname}`;
         // Reset the auto-increment counter for the ID column
-        await Sql`SELECT setval('Tasks_ID_seq', COALESCE(MAX("id"), 0) + 1, false) FROM Tasks`;
+        await Sql`SELECT setval('Tasks_ID_seq', COALESCE(MAX("id"), 0) + 1, false) FROM mastertasks`;
         res.status(200).json({
             message: `Task '${req.body.tname}' deleted successfully`,
             tasks: tasks
@@ -80,9 +80,9 @@ app.delete('/tasks', async (req, res, next) => {
         try {
             let result;
             if (!isNaN(idOrtName)) {
-                result = await Sql`DELETE FROM tasks WHERE id = ${idOrtName}`;
+                result = await Sql`DELETE FROM mastertasks WHERE id = ${idOrtName}`;
             } else {
-                result = await Sql`DELETE FROM tasks WHERE TASK = ${idOrtName}`;
+                result = await Sql`DELETE FROM mastertasks WHERE TASK = ${idOrtName}`;
             }
 
             if (result.count === 0) {
@@ -93,14 +93,14 @@ app.delete('/tasks', async (req, res, next) => {
             await Sql`
                 WITH reordered AS (
                     SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS new_id
-                    FROM tasks
+                    FROM mastertasks
                 )
-                UPDATE tasks
+                UPDATE mastertasks
                 SET id = reordered.new_id
                 FROM reordered
-                WHERE tasks.id = reordered.id
+                WHERE mastertasks.id = reordered.id
             `;
-            await Sql`SELECT setval('tasks_id_seq', COALESCE(MAX(id), 0) + 1, false) FROM tasks`;
+            await Sql`SELECT setval('tasks_id_seq', COALESCE(MAX(id), 0) + 1, false) FROM mastertasks`;
 
             res.json({ message: "Task deleted successfully" });
         } catch (error) {
@@ -118,7 +118,7 @@ app.delete('/tasks', async (req, res, next) => {
                 return;
             }
             // DELETE FROM Users WHERE name = 'Saurabh' AND age = 21
-            await Sql`TRUNCATE TABLE Tasks RESTART IDENTITY;`;
+            await Sql`TRUNCATE TABLE mastertasks RESTART IDENTITY;`;
             res.status(200).json({
                 message: 'All tasks deleted successfully',
             });
@@ -145,7 +145,7 @@ app.put('/tasks/:id', async (req, res, next) => {
         }
 
         // Update the task in the database
-        const result = await Sql`UPDATE Tasks SET TASK = ${updatedTask} WHERE id = ${taskId}`;
+        const result = await Sql`UPDATE mastertasks SET TASK = ${updatedTask} WHERE id = ${taskId}`;
 
         // Check if the task was updated
         if (result.count === 0) {
@@ -157,7 +157,7 @@ app.put('/tasks/:id', async (req, res, next) => {
 
         res.status(200).json({
             message: `Task with ID ${taskId} updated successfully`,
-            redirect: '/mastertasks'
+            redirect: '/tasks'
         });
     } catch (error) {
         console.error('Error updating task:', error);
